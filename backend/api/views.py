@@ -35,3 +35,34 @@ def language_data(request, language):
             json.dump(body, f, indent=2)
 
         return JsonResponse({"status": "saved"})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def add_availability(request, language):
+    file_path = get_language_file(language)
+
+    if not os.path.exists(file_path):
+        return JsonResponse({"error": "Language not found"}, status=404)
+
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+        teacher_id = body["teacherId"]
+        slot = body["slot"]
+    except Exception:
+        return JsonResponse({"error": "Invalid payload"}, status=400)
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    teacher = next((t for t in data["teachers"] if t["id"] == teacher_id), None)
+
+    if not teacher:
+        return JsonResponse({"error": "Teacher not found"}, status=404)
+
+    teacher["availabilitySlots"].append(slot)
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return JsonResponse({"status": "availability added"})

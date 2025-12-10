@@ -1,47 +1,45 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">
-      Scheduler – API Connection Test
-    </h1>
+  <div class="app-wrapper">
+    <h1>Scheduler MVP</h1>
 
-    <el-button type="primary" @click="loadEnglish">
-      Load English JSON
-    </el-button>
+    <div class="mb-4">
+      <el-button type="primary" @click="view = 'add'">
+        Add Availability
+      </el-button>
 
-    <pre v-if="json" class="mt-6 p-4 bg-gray-100 rounded text-sm">
-{{ json }}
-    </pre>
+      <el-button class="ml-2" @click="view = 'view'">
+        View Availability
+      </el-button>
+
+      <el-button class="ml-2" type="success" @click="view = 'check'">
+        Check Availability
+      </el-button>
+    </div>
+
+    <div class="spacer-24"></div>
+
+    <AddAvailability v-if="view === 'add'" />
+    <ViewAvailability v-if="view === 'view'" />
+    <AvailabilityChecker v-if="view === 'check'" />
   </div>
 </template>
 
 <script>
-import api from "./api"
+import AddAvailability from "./components/AddAvailability.vue"
+import ViewAvailability from "./components/ViewAvailability.vue"
+import AvailabilityChecker from "./components/AvailabilityChecker.vue"
 
 export default {
-  name: "App",
+  components: {
+    AddAvailability,
+    ViewAvailability,
+    AvailabilityChecker
+  },
 
   data() {
     return {
-      json: null
-    }
-  },
-
-  methods: {
-    async loadEnglish() {
-      try {
-        const res = await api.get("english")
-        this.json = res.data
-      } catch (err) {
-        console.error(err)
-        alert("Backend connection failed")
-      }
+      view: null
     }
   }
 }
 </script>
-
-<style>
-body {
-  margin: 0;
-}
-</style>

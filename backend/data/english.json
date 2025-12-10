@@ -1,7 +1,88 @@
 {
-  "language": "English",
-  "availabilityRules": [],
-  "slots": [],
-  "courses": [],
-  "courseSessions": []
+  "language": "en",
+  "teachers": [
+    {
+      "id": "en_t1",
+      "name": "Teacher 1",
+      "availabilitySlots": [
+        {
+          "id": "en_t1_a1",
+          "weekday": 1,
+          "startTime": "15:00",
+          "endTime": "16:00",
+          "startDate": "2025-02-01",
+          "endDate": "2025-06-01",
+          "timeZone": "Europe/Warsaw"
+        },
+        {
+          "id": "en_t1_a2",
+          "weekday": 1,
+          "startTime": "18:00",
+          "endTime": "19:00",
+          "startDate": "2025-02-01",
+          "endDate": "2025-06-01",
+          "timeZone": "Europe/Warsaw"
+        },
+        {
+          "id": "en_t1_a3",
+          "weekday": 1,
+          "startTime": "09:00",
+          "endTime": "12:00",
+          "startDate": "2025-12-31",
+          "endDate": "2026-12-30",
+          "timeZone": "Europe/Warsaw"
+        }
+      ],
+      "bookings": [
+        {
+          "id": "en_t1_b1",
+          "groupReference": "Sample Group",
+          "sessions": [
+            {
+              "id": "en_t1_b1_s1",
+              "startDateTime": "2026-03-03T15:00",
+              "durationMinutes": 60,
+              "timeZone": "Europe/Warsaw"
+            },
+            {
+              "id": "en_t1_b1_s2",
+              "startDateTime": "2026-03-10T15:00",
+              "durationMinutes": 60,
+              "timeZone": "Europe/Warsaw"
+            }
+          ]
+        }
+      ],
+      "blockers": [
+        {
+          "id": "en_t1_bl1",
+          "startDateTime": "2025-12-24T00:00",
+          "endDateTime": "2026-01-01T23:59",
+          "timeZone": "Europe/Warsaw",
+          "reason": "Christmas break"
+        }
+      ]
+    },
+    {
+      "id": "en_t2",
+      "name": "Teacher 2",
+      "availabilitySlots": [
+        {
+          "id": "en_t2_a1",
+          "weekday": 3,
+          "startTime": "14:00",
+          "endTime": "15:00",
+          "startDate": "2025-02-01",
+          "endDate": "2025-06-01",
+          "timeZone": "Europe/Warsaw"
+        }
+      ],
+      "bookings": [],
+      "blockers": []
+    }
+  ],
+  "meta": {
+    "defaultTimeZone": "Europe/Warsaw",
+    "lastUpdated": "2025-02-01T12:00"
+  }
 }
