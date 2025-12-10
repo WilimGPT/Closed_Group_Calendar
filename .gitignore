@@ -1,0 +1,18 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+
+# Django
+.env
+
+# Node / Vue
+node_modules/
+dist/
+
+# Mac junk
+.DS_Store
+
+# ref folder
+/ref
