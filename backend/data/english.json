@@ -7,28 +7,31 @@
       "availabilitySlots": [
         {
           "id": "en_t1_a1",
-          "weekday": 1,
-          "startTime": "15:00",
-          "endTime": "16:00",
-          "startDate": "2025-02-01",
-          "endDate": "2025-06-01",
+          "weekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "09:00",
+          "endTime": "11:00",
+          "startDate": "2025-12-31",
+          "endDate": "2026-12-30",
           "timeZone": "Europe/Warsaw"
         },
         {
           "id": "en_t1_a2",
-          "weekday": 1,
-          "startTime": "18:00",
-          "endTime": "19:00",
-          "startDate": "2025-02-01",
-          "endDate": "2025-06-01",
-          "timeZone": "Europe/Warsaw"
-        },
-        {
-          "id": "en_t1_a3",
-          "weekday": 1,
-          "startTime": "09:00",
-          "endTime": "12:00",
-          "startDate": "2025-12-31",
+          "weekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "15:00",
+          "endTime": "16:00",
+          "startDate": "2026-01-04",
           "endDate": "2026-12-30",
           "timeZone": "Europe/Warsaw"
         }
@@ -67,13 +70,20 @@
       "id": "en_t2",
       "name": "Teacher 2",
       "availabilitySlots": [
+        {},
         {
-          "id": "en_t2_a1",
-          "weekday": 3,
-          "startTime": "14:00",
-          "endTime": "15:00",
-          "startDate": "2025-02-01",
-          "endDate": "2025-06-01",
+          "id": "en_t2_a2",
+          "weekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "09:00",
+          "endTime": "11:00",
+          "startDate": "2026-01-04",
+          "endDate": "2026-12-30",
           "timeZone": "Europe/Warsaw"
         }
       ],

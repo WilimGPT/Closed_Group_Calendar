@@ -2,6 +2,7 @@
   <div class="form-card">
     <h2>Add Availability</h2>
 
+    <!-- Select Language -->
     <div class="form-row">
       <label>Language</label>
       <el-select v-model="language">
@@ -11,6 +12,7 @@
       </el-select>
     </div>
 
+    <!-- Select Teacher -->
     <div class="form-row" v-if="teachers.length">
       <label>Teacher</label>
       <el-select v-model="teacherId">
@@ -23,82 +25,30 @@
       </el-select>
     </div>
 
-    <div class="form-row">
-      <label>Day of Week</label>
-      <el-select v-model="weekday">
-        <el-option v-for="(d, i) in weekdays" :key="i" :label="d" :value="i" />
-      </el-select>
-    </div>
-
-    <div class="form-row-group">
-      <div>
-        <label>Start Time</label>
-        <el-time-picker v-model="startTime" format="HH:mm" />
-      </div>
-      <div>
-        <label>End Time</label>
-        <el-time-picker v-model="endTime" format="HH:mm" />
-      </div>
-    </div>
-
-    <div class="form-row-group">
-      <div>
-        <label>Start Date</label>
-        <el-date-picker v-model="startDate" type="date" />
-      </div>
-      <div>
-        <label>End Date</label>
-        <el-date-picker v-model="endDate" type="date" />
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label>Time Zone</label>
-      <el-select v-model="timeZone" filterable>
-        <el-option
-            v-for="tz in timezones"
-            :key="tz"
-            :label="tz"
-            :value="tz"
-        />
-        </el-select>
-
-    </div>
-
-    <el-button type="primary" @click="confirmSlot">
-      Confirm
-    </el-button>
-
-    <el-button v-if="confirmed" type="success" @click="saveSlot">
-      Execute Save
-    </el-button>
+    <!-- Availability Form (Create Mode) -->
+    <availability-form
+      v-if="teacherId"
+      mode="create"
+      :teacher-id="teacherId"
+      :language="language"
+      @submit="saveSlot"
+      @cancel="resetForm"
+    />
   </div>
 </template>
 
-
 <script>
 import api from "../api"
-import timezones from "../timezones"
+import AvailabilityForm from "./AvailabilityForm.vue"
 
 export default {
+  components: { AvailabilityForm },
+
   data() {
     return {
       language: "english",
-      timezones,
       teachers: [],
-      teacherId: "",
-
-      weekday: 1,
-      startTime: "",
-      endTime: "",
-      startDate: "",
-      endDate: "",
-      timeZone: "Europe/Warsaw",
-
-      confirmed: false,
-      slotPayload: null,
-
-      weekdays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      teacherId: ""
     }
   },
 
@@ -119,42 +69,32 @@ export default {
       this.teacherId = ""
     },
 
-    confirmSlot() {
+    async saveSlot(slotPayload) {
       const teacher = this.teachers.find(t => t.id === this.teacherId)
       const nextIndex = teacher.availabilitySlots.length + 1
-
       const slotId = `${this.teacherId}_a${nextIndex}`
 
-      this.slotPayload = {
-        id: slotId,
-        weekday: this.weekday,
-        startTime: this.formatTime(this.startTime),
-        endTime: this.formatTime(this.endTime),
-        startDate: this.formatDate(this.startDate),
-        endDate: this.formatDate(this.endDate),
-        timeZone: this.timeZone
-      }
+      const finalPayload = {
+            id: slotId,
+            weekdays: slotPayload.weekdays,
+            startTime: slotPayload.startTime,
+            endTime: slotPayload.endTime,
+            startDate: slotPayload.startDate,
+            endDate: slotPayload.endDate,
+            timeZone: slotPayload.timeZone
+        }
 
-      this.confirmed = true
-      alert("Slot confirmed. Click Execute Save to persist.")
-    },
-
-    async saveSlot() {
       await api.post(`${this.language}/add-availability/`, {
         teacherId: this.teacherId,
-        slot: this.slotPayload
+        slot: finalPayload
       })
 
-      alert("Availability saved to backend.")
-      this.confirmed = false
+      this.$message.success("Availability saved.")
+      this.resetForm()
     },
 
-    formatDate(d) {
-      return new Date(d).toISOString().slice(0, 10)
-    },
-
-    formatTime(t) {
-      return new Date(t).toTimeString().slice(0, 5)
+    resetForm() {
+      this.teacherId = ""
     }
   }
 }
