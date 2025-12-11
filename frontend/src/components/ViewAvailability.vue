@@ -173,7 +173,6 @@
         :initialSessions="buildInitialSessions(selectedCourse)"
         :teachers="teachers"
         :language="language"
-        :groupReference="selectedCourse.groupReference"
         :durationMinutes="selectedCourse.durationMinutes"
         :timeZone="selectedCourse.timeZone"
         @save-course="handleCourseSave"
@@ -269,16 +268,33 @@ export default {
 
 
     async handleCourseSave(payload) {
-      this.$message.success("Course updated (frontend). Backend wiring next.");
+      try {
+        // clean payload sent to backend
+        const cleanPayload = {
+          teacherId: payload.teacherId,
+          groupReference: payload.groupReference,
+          timeZone: payload.timeZone,
+          durationMinutes: payload.durationMinutes,
+          sessions: payload.sessions.map(s => ({
+            id: s.id,
+            startDateTime: s.startDateTime || s.localDateTime.toISO({ suppressSeconds: true, suppressMilliseconds: true })
+          }))
+        }
+
+        await api.post(`${this.language}/update-course/${payload.id}`, cleanPayload)
+
+        this.$message.success("Course updated successfully!")
+      } catch (err) {
+        console.error(err)
+        this.$message.error("Failed to update course.")
+      }
 
       this.showCourseModal = false;
-
-      // Later:
-      // await api.post(`${payload.language}/update-course/${payload.id}`, payload)
 
       await this.loadTeachers();
       if (this.teacherId) this.filterAll();
     },
+
 
 
     /** Convert [1,2,3] → "Mon, Tue, Wed" */
@@ -332,28 +348,44 @@ export default {
 
     /** Handle save from AvailabilityForm (EDIT) */
     async handleEditSubmit(updatedPayload) {
-      // NOTE: here we're only closing + refreshing UI.
-      // The actual backend update endpoint will be wired next.
-      this.$message.success("Changes confirmed (frontend). Backend wiring is next.")
+      try {
+        await api.post(`${this.language}/update-availability/`, {
+          teacherId: this.teacherId,
+          slotId: this.selectedSlot.id,
+          updatedSlot: updatedPayload
+        })
+
+        this.$message.success("Availability updated.")
+      } catch (err) {
+        console.error(err)
+        this.$message.error("Failed to update availability.")
+      }
+
       this.showEditModal = false
-
-      // Once backend is implemented, you'll call it here, then reload:
-      // await api.post(`${this.language}/update-availability/`, { ... })
-
-      // For now, just reload from backend to keep things in sync
       await this.loadTeachers()
       if (this.teacherId) this.filterAll()
     },
 
+
     /** Handle delete from AvailabilityForm */
     async handleEditDelete() {
-      this.$message.success("Delete confirmed (frontend). Backend wiring is next.")
-      this.showEditModal = false
+      try {
+        await api.post(`${this.language}/delete-availability/`, {
+          teacherId: this.teacherId,
+          slotId: this.selectedSlot.id
+        })
 
-      // Later: call delete endpoint, then reload
+        this.$message.success("Availability deleted.")
+      } catch (err) {
+        console.error(err)
+        this.$message.error("Failed to delete slot.")
+      }
+
+      this.showEditModal = false
       await this.loadTeachers()
       if (this.teacherId) this.filterAll()
     }
+
   }
 }
 </script>

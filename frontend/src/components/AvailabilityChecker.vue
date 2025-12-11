@@ -59,11 +59,6 @@
       </div>
     </div>
 
-    <div class="form-row">
-      <label>Group Reference</label>
-      <el-input v-model="groupReference" />
-    </div>
-
     <el-button type="primary" class="mt-4" @click="runCheck">
       Generate & Check
     </el-button>
@@ -75,7 +70,6 @@
       :initialSessions="generatedSessions"
       :teachers="teachers"
       :language="language"
-      :groupReference="groupReference"
       :durationMinutes="durationMinutes"
       :timeZone="timeZone"
       @save-course="submitCourse"
@@ -151,8 +145,8 @@ export default {
           const utc = cursor.toUTC()
 
           out.push({
-            localDateTime: local,
-            utcDateTime: utc,
+            localDateTime: DateTime.fromISO(local.toISO(), { zone: this.timeZone }),
+            utcDateTime: DateTime.fromISO(utc.toISO(), { zone: "utc" }),
             localLabel: local.toFormat("yyyy-MM-dd HH:mm"),
             utcLabel: utc.toFormat("yyyy-MM-dd HH:mm"),
             isCustom: false
@@ -169,13 +163,44 @@ export default {
 
     async submitCourse(payload) {
       try {
-        await api.post(`${payload.language}/book/${payload.teacherId}`, payload)
+        const cleanPayload = {
+          teacherId: payload.teacherId,
+          groupReference: payload.groupReference,
+          timeZone: payload.timeZone,
+          durationMinutes: payload.durationMinutes,
+
+          sessions: payload.sessions.map(s => {
+            // Use startDateTime if localDateTime is not present
+            const raw = s.startDateTime || s.localDateTime
+
+            const dt = DateTime.fromISO(raw)
+
+            if (!dt.isValid) {
+              console.error("Broken session detected:", s)
+              throw new Error("Invalid session date")
+            }
+
+            return {
+              id: s.id,
+              startDateTime: dt.toISO({
+                suppressSeconds: true,
+                suppressMilliseconds: true
+              })
+            }
+          })
+        }
+
+        await api.post(`${this.language}/book/${payload.teacherId}`, cleanPayload)
+
         this.$message.success("Course booked successfully!")
       } catch (err) {
         console.error(err)
         this.$message.error("Failed to save course.")
       }
     }
+
+
+
   }
 }
 </script>

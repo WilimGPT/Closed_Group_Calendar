@@ -39,17 +39,49 @@
       "bookings": [
         {
           "id": "en_t1_b1",
-          "groupReference": "Sample Group",
+          "groupReference": "",
           "timeZone": "Europe/Warsaw",
           "durationMinutes": 60,
           "sessions": [
             {
-              "id": "en_t1_b1_s1",
-              "startDateTime": "2026-03-03T15:00"
+              "id": "course_s1",
+              "startDateTime": "2025-12-29T18:10+01:00"
             },
             {
-              "id": "en_t1_b1_s2",
-              "startDateTime": "2026-03-10T15:00"
+              "id": "course_s2",
+              "startDateTime": "2026-01-05T18:10+01:00"
+            },
+            {
+              "id": "course_s3",
+              "startDateTime": "2026-01-12T18:10+01:00"
+            },
+            {
+              "id": "course_s4",
+              "startDateTime": "2026-01-19T18:10+01:00"
+            }
+          ]
+        },
+        {
+          "id": "en_t1_b2",
+          "groupReference": "test1",
+          "timeZone": "Europe/Warsaw",
+          "durationMinutes": 60,
+          "sessions": [
+            {
+              "id": "course_s1",
+              "startDateTime": "2025-12-15T17:15:00.000+01:00"
+            },
+            {
+              "id": "course_s2",
+              "startDateTime": "2025-12-22T17:15:00.000+01:00"
+            },
+            {
+              "id": "course_s3",
+              "startDateTime": "2025-12-29T17:15:00.000+01:00"
+            },
+            {
+              "id": "course_s4",
+              "startDateTime": "2026-01-05T17:15:00.000+01:00"
             }
           ]
         }
@@ -83,9 +115,37 @@
           "startDate": "2026-01-04",
           "endDate": "2026-12-30",
           "timeZone": "Europe/Warsaw"
+        },
+        {
+          "id": "en_t2_a3",
+          "weekdays": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "15:00",
+          "endTime": "16:00",
+          "startDate": "2026-01-04",
+          "endDate": "2026-12-30",
+          "timeZone": "Europe/Warsaw"
         }
       ],
-      "bookings": [],
+      "bookings": [
+        {
+          "id": "en_t1_b1",
+          "groupReference": "Sample Group",
+          "timeZone": "Europe/Warsaw",
+          "durationMinutes": 60,
+          "sessions": [
+            {
+              "id": "en_t1_b1_s1",
+              "startDateTime": "2026-03-03T09:00:00.000+01:00"
+            }
+          ]
+        }
+      ],
       "blockers": []
     }
   ],
