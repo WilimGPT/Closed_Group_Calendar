@@ -27,18 +27,20 @@
 
     <el-divider />
 
-    <!-- TWO COLUMN LAYOUT -->
+    <!-- MAIN TWO-COLUMN LAYOUT -->
     <div class="two-col" v-if="teacherId">
 
-      <!-- LEFT: AVAILABILITY SECTION -->
+      <!-- ===================================
+           LEFT COLUMN: AVAILABILITY
+      ==================================== -->
       <div>
         <h3 class="mb-3">Active Availability Slots</h3>
 
         <div v-if="activeSlots.length">
           <div
-            class="slot-card"
             v-for="slot in activeSlots"
             :key="slot.id"
+            class="slot-card"
           >
             <div><strong>Weekdays:</strong> {{ formatWeekdays(slot.weekdays) }}</div>
             <div><strong>Time:</strong> {{ slot.startTime }} – {{ slot.endTime }}</div>
@@ -48,18 +50,20 @@
           </div>
         </div>
 
-        <div v-else class="text-muted mb-4">No currently active availability slots.</div>
+        <div v-else class="text-muted mb-4">
+          No currently active availability slots.
+        </div>
 
         <el-divider />
 
-        <!-- FUTURE SLOTS (CLICKABLE FOR EDITING) -->
+        <!-- FUTURE SLOTS (CLICKABLE TO EDIT) -->
         <h3 class="mb-3">Future Availability Slots</h3>
 
         <div v-if="futureSlots.length">
           <div
-            class="slot-card future clickable"
             v-for="slot in futureSlots"
             :key="slot.id"
+            class="slot-card future clickable"
             @click="openEdit(slot)"
           >
             <div><strong>Weekdays:</strong> {{ formatWeekdays(slot.weekdays) }}</div>
@@ -71,27 +75,36 @@
           </div>
         </div>
 
-        <div v-else class="text-muted">No future availability slots.</div>
+        <div v-else class="text-muted">
+          No future availability slots.
+        </div>
       </div>
 
-      <!-- RIGHT: COURSES SECTION -->
+      <!-- ===================================
+           RIGHT COLUMN: COURSES
+      ==================================== -->
       <div>
         <h3 class="mb-3">Current Courses</h3>
 
         <div v-if="currentCourses.length">
           <div
-            class="course-card"
             v-for="course in currentCourses"
             :key="course.id"
+            class="course-card"
           >
             <div><strong>Group:</strong> {{ course.groupReference }}</div>
             <div><strong>Sessions:</strong></div>
             <ul>
-              <li v-for="s in course.sessions" :key="s.id">{{ s.startDateTime }}</li>
+              <li v-for="s in course.sessions" :key="s.id">
+                {{ s.startDateTime }}
+              </li>
             </ul>
           </div>
         </div>
-        <div v-else class="text-muted mb-4">No current courses.</div>
+
+        <div v-else class="text-muted mb-4">
+          No current courses.
+        </div>
 
         <el-divider />
 
@@ -99,39 +112,76 @@
 
         <div v-if="futureCourses.length">
           <div
-            class="course-card future"
             v-for="course in futureCourses"
             :key="course.id"
+            class="course-card future clickable"
+            @click="openCourseEditor(course)"
           >
             <div><strong>Group:</strong> {{ course.groupReference }}</div>
             <div><strong>Sessions:</strong></div>
             <ul>
-              <li v-for="s in course.sessions" :key="s.id">{{ s.startDateTime }}</li>
+              <li v-for="s in course.sessions" :key="s.id">
+                {{ s.startDateTime }}
+              </li>
             </ul>
           </div>
         </div>
-        <div v-else class="text-muted">No future courses.</div>
+
+        <div v-else class="text-muted">
+          No future courses.
+        </div>
       </div>
     </div>
 
-    <!-- ================================
+    <!-- ===================================
          EDIT AVAILABILITY MODAL
-    ================================= -->
+    ==================================== -->
     <el-dialog
       title="Edit Availability Slot"
       :visible.sync="showEditModal"
       width="480px"
     >
+      <!-- Only render form once we have a selectedSlot -->
       <AvailabilityForm
-        :initialSlot="selectedSlot"
+        v-if="selectedSlot"
+        :key="selectedSlot.id"
+        mode="edit"
+        :initialValue="selectedSlot"
         :teacherId="teacherId"
         :language="language"
-        :mode="'edit'"
-        @saved="handleSaved"
-        @deleted="handleDeleted"
-        @close="showEditModal = false"
+        @submit="handleEditSubmit"
+        @delete="handleEditDelete"
+        @cancel="showEditModal = false"
       />
     </el-dialog>
+
+
+    <!-- ===================================
+        EDIT FUTURE COURSE MODAL
+    =================================== -->
+    <el-dialog
+      title="Edit Course"
+      :visible.sync="showCourseModal"
+      width="80%"
+    >
+
+      <CourseForm
+        v-if="selectedCourse"
+        :key="selectedCourse.id"
+        :editMode="true"
+        :courseId="selectedCourse.id"
+        :initialSessions="buildInitialSessions(selectedCourse)"
+        :teachers="teachers"
+        :language="language"
+        :groupReference="selectedCourse.groupReference"
+        :durationMinutes="selectedCourse.durationMinutes"
+        :timeZone="selectedCourse.timeZone"
+        @save-course="handleCourseSave"
+      />
+
+    </el-dialog>
+
+
 
   </div>
 </template>
@@ -139,9 +189,15 @@
 <script>
 import api from "../api"
 import AvailabilityForm from "./AvailabilityForm.vue"
+import CourseForm from "./CourseForm.vue"
+import { DateTime } from "luxon"
+
 
 export default {
-  components: { AvailabilityForm },
+  components: { 
+    AvailabilityForm,
+    CourseForm
+  },
 
   data() {
     return {
@@ -151,13 +207,16 @@ export default {
 
       activeSlots: [],
       futureSlots: [],
-
       currentCourses: [],
       futureCourses: [],
 
+      // For edit modal
       showEditModal: false,
       selectedSlot: null,
+      showCourseModal: false,
+      selectedCourse: null,
 
+      // Luxon weekday model: 1 = Monday ... 7 = Sunday
       weekdayNames: {
         1: "Monday",
         2: "Tuesday",
@@ -180,16 +239,47 @@ export default {
   },
 
   methods: {
-    /** Reload teachers & reset everything when language changes */
+    /** Fetch teachers for selected language */
     async loadTeachers() {
       const res = await api.get(this.language)
       this.teachers = res.data.teachers
+
       this.teacherId = ""
       this.activeSlots = []
       this.futureSlots = []
       this.currentCourses = []
       this.futureCourses = []
+      this.selectedSlot = null
+      this.showEditModal = false
     },
+
+    openCourseEditor(course) {
+      // Deep clone so CourseForm can mutate safely
+      this.selectedCourse = JSON.parse(JSON.stringify(course))
+      this.showCourseModal = true
+    },
+
+    buildInitialSessions(course) {
+      return course.sessions.map(s => ({
+        id: s.id,
+        localDateTime: DateTime.fromISO(s.startDateTime, { zone: course.timeZone }),
+        utcDateTime: DateTime.fromISO(s.startDateTime, { zone: course.timeZone }).toUTC()
+      }))
+    },
+
+
+    async handleCourseSave(payload) {
+      this.$message.success("Course updated (frontend). Backend wiring next.");
+
+      this.showCourseModal = false;
+
+      // Later:
+      // await api.post(`${payload.language}/update-course/${payload.id}`, payload)
+
+      await this.loadTeachers();
+      if (this.teacherId) this.filterAll();
+    },
+
 
     /** Convert [1,2,3] → "Mon, Tue, Wed" */
     formatWeekdays(arr) {
@@ -197,56 +287,81 @@ export default {
       return arr.map(w => this.weekdayNames[w]).join(", ")
     },
 
-    /** Recomputes availability + course lists */
+    /** Filter availability and courses for current teacher */
     filterAll() {
       const teacher = this.teachers.find(t => t.id === this.teacherId)
       if (!teacher) return
 
       const today = new Date().toISOString().slice(0, 10)
 
-      const validSlots = teacher.availabilitySlots.filter(s => s.endDate >= today)
+      // AVAILABILITY
+      const validSlots = teacher.availabilitySlots.filter(
+        s => s.endDate >= today
+      )
 
-      this.activeSlots = validSlots.filter(s => s.startDate <= today)
-      this.futureSlots = validSlots.filter(s => s.startDate > today)
+      this.activeSlots = validSlots.filter(
+        s => s.startDate <= today
+      )
 
+      this.futureSlots = validSlots.filter(
+        s => s.startDate > today
+      )
+
+      // COURSES
       const allCourses = teacher.bookings || []
 
       this.currentCourses = allCourses.filter(course => {
         const dates = course.sessions.map(s => s.startDateTime.slice(0, 10))
-        const first = Math.min(...dates)
-        const last = Math.max(...dates)
+        const first = dates.reduce((a, b) => (a < b ? a : b))
+        const last  = dates.reduce((a, b) => (a > b ? a : b))
         return first <= today && last >= today
       })
 
       this.futureCourses = allCourses.filter(course => {
-        const first = Math.min(...course.sessions.map(s => s.startDateTime.slice(0, 10)))
+        const dates = course.sessions.map(s => s.startDateTime.slice(0, 10))
+        const first = dates.reduce((a, b) => (a < b ? a : b))
         return first > today
       })
     },
 
-    /** Opens modal and loads clicked slot */
+    /** Open edit modal for a selected future slot */
     openEdit(slot) {
-      this.selectedSlot = { ...slot } // shallow copy for safety
+      this.selectedSlot = { ...slot } // shallow clone
       this.showEditModal = true
     },
 
-    /** Called when form saves slot */
-    handleSaved() {
+    /** Handle save from AvailabilityForm (EDIT) */
+    async handleEditSubmit(updatedPayload) {
+      // NOTE: here we're only closing + refreshing UI.
+      // The actual backend update endpoint will be wired next.
+      this.$message.success("Changes confirmed (frontend). Backend wiring is next.")
       this.showEditModal = false
-      this.loadTeachers().then(() => this.filterAll())
+
+      // Once backend is implemented, you'll call it here, then reload:
+      // await api.post(`${this.language}/update-availability/`, { ... })
+
+      // For now, just reload from backend to keep things in sync
+      await this.loadTeachers()
+      if (this.teacherId) this.filterAll()
     },
 
-    /** Called when slot is deleted */
-    handleDeleted() {
+    /** Handle delete from AvailabilityForm */
+    async handleEditDelete() {
+      this.$message.success("Delete confirmed (frontend). Backend wiring is next.")
       this.showEditModal = false
-      this.loadTeachers().then(() => this.filterAll())
+
+      // Later: call delete endpoint, then reload
+      await this.loadTeachers()
+      if (this.teacherId) this.filterAll()
     }
   }
 }
 </script>
 
 <style scoped>
-.form-card.wide { max-width: 1100px; }
+.form-card.wide {
+  max-width: 1100px;
+}
 
 .two-col {
   display: grid;
@@ -264,11 +379,26 @@ export default {
   font-size: 13px;
 }
 
-.slot-card.future { background: #f7fff5; border-color: #cfe9d6; }
-.course-card.future { background: #f7fff5; border-color: #cfe9d6; }
+.slot-card.future,
+.course-card.future {
+  background: #f7fff5;
+  border-color: #cfe9d6;
+}
 
-.clickable { cursor: pointer; }
-.clickable:hover { background: #eaf7ff; }
+.clickable {
+  cursor: pointer;
+}
 
-.text-muted { color: #888; }
+.clickable:hover {
+  background: #eaf7ff;
+}
+
+.course-card ul {
+  padding-left: 18px;
+  margin: 6px 0 0;
+}
+
+.text-muted {
+  color: #888;
+}
 </style>

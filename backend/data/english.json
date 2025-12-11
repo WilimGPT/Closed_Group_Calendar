@@ -40,18 +40,16 @@
         {
           "id": "en_t1_b1",
           "groupReference": "Sample Group",
+          "timeZone": "Europe/Warsaw",
+          "durationMinutes": 60,
           "sessions": [
             {
               "id": "en_t1_b1_s1",
-              "startDateTime": "2026-03-03T15:00",
-              "durationMinutes": 60,
-              "timeZone": "Europe/Warsaw"
+              "startDateTime": "2026-03-03T15:00"
             },
             {
               "id": "en_t1_b1_s2",
-              "startDateTime": "2026-03-10T15:00",
-              "durationMinutes": 60,
-              "timeZone": "Europe/Warsaw"
+              "startDateTime": "2026-03-10T15:00"
             }
           ]
         }
