@@ -3,7 +3,7 @@
   "teachers": [
     {
       "id": "en_t1",
-      "name": "Teacher 1",
+      "name": "Lyndelle Moodley",
       "availabilitySlots": [
         {
           "id": "en_t1_a1",
@@ -37,68 +37,13 @@
         }
       ],
       "bookings": [
-        {
-          "id": "en_t1_b1",
-          "groupReference": "",
-          "timeZone": "Europe/Warsaw",
-          "durationMinutes": 60,
-          "sessions": [
-            {
-              "id": "course_s1",
-              "startDateTime": "2025-12-29T18:10+01:00"
-            },
-            {
-              "id": "course_s2",
-              "startDateTime": "2026-01-05T18:10+01:00"
-            },
-            {
-              "id": "course_s3",
-              "startDateTime": "2026-01-12T18:10+01:00"
-            },
-            {
-              "id": "course_s4",
-              "startDateTime": "2026-01-19T18:10+01:00"
-            }
-          ]
-        },
-        {
-          "id": "en_t1_b2",
-          "groupReference": "test1",
-          "timeZone": "Europe/Warsaw",
-          "durationMinutes": 60,
-          "sessions": [
-            {
-              "id": "course_s1",
-              "startDateTime": "2025-12-15T17:15:00.000+01:00"
-            },
-            {
-              "id": "course_s2",
-              "startDateTime": "2025-12-22T17:15:00.000+01:00"
-            },
-            {
-              "id": "course_s3",
-              "startDateTime": "2025-12-29T17:15:00.000+01:00"
-            },
-            {
-              "id": "course_s4",
-              "startDateTime": "2026-01-05T17:15:00.000+01:00"
-            }
-          ]
-        }
       ],
       "blockers": [
-        {
-          "id": "en_t1_bl1",
-          "startDateTime": "2025-12-24T00:00",
-          "endDateTime": "2026-01-01T23:59",
-          "timeZone": "Europe/Warsaw",
-          "reason": "Christmas break"
-        }
       ]
     },
     {
       "id": "en_t2",
-      "name": "Teacher 2",
+      "name": "Larelle Foord",
       "availabilitySlots": [
         {},
         {
@@ -133,18 +78,6 @@
         }
       ],
       "bookings": [
-        {
-          "id": "en_t1_b1",
-          "groupReference": "Sample Group",
-          "timeZone": "Europe/Warsaw",
-          "durationMinutes": 60,
-          "sessions": [
-            {
-              "id": "en_t1_b1_s1",
-              "startDateTime": "2026-03-03T09:00:00.000+01:00"
-            }
-          ]
-        }
       ],
       "blockers": []
     }
