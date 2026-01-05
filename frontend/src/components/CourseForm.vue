@@ -66,6 +66,7 @@
               <el-button
                 type="primary"
                 size="mini"
+                :disabled="!form.groupReference.trim()"
                 @click="attemptBooking(t)"
               >
                 {{ editMode ? "Save Changes" : "Book Course" }}
@@ -237,10 +238,17 @@ export default {
 
       const isBooked = teacher.bookings.some(b =>
         b.sessions.some(s => {
-          const bookingUTC = DateTime.fromISO(s.startDateTime, { zone: b.timeZone }).toUTC()
-          return bookingUTC.equals(session.utcDateTime)
+          // 1. Parse start time *in booking’s timezone*
+          const bookingLocal = DateTime.fromISO(s.startDateTime, { zone: b.timeZone })
+
+          // 2. Convert to UTC
+          const bookingUTC = bookingLocal.toUTC()
+
+          // 3. Compare normalised UTC millis
+          return bookingUTC.toMillis() === session.utcDateTime.toMillis()
         })
       )
+
 
       if (isBooked) {
         return { teacherId: teacher.id, ok: false, message: "Already booked" }
@@ -348,5 +356,5 @@ export default {
 </script>
 
 <style scoped>
-/* unchanged */
+
 </style>
