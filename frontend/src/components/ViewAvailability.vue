@@ -90,7 +90,8 @@
           <div
             v-for="course in currentCourses"
             :key="course.id"
-            class="course-card"
+            class="course-card clickable"
+            @click="openCourseEditor(course)"
           >
             <div><strong>Group:</strong> {{ course.groupReference }}</div>
             <div><strong>Sessions:</strong></div>
@@ -99,8 +100,10 @@
                 {{ s.startDateTime }}
               </li>
             </ul>
+            <small class="text-muted">(Click to edit)</small>
           </div>
         </div>
+
 
         <div v-else class="text-muted mb-4">
           No current courses.
@@ -130,6 +133,33 @@
         <div v-else class="text-muted">
           No future courses.
         </div>
+
+        <el-divider />
+
+          <h3 class="mb-3">Past Courses</h3>
+
+          <div v-if="pastCourses.length">
+            <div
+              v-for="course in pastCourses"
+              :key="course.id"
+              class="course-card clickable"
+              @click="openCourseEditor(course)"
+            >
+              <div><strong>Group:</strong> {{ course.groupReference }}</div>
+              <ul>
+                <li v-for="s in course.sessions" :key="s.id">
+                  {{ s.startDateTime }}
+                </li>
+              </ul>
+              <small class="text-muted">(Click to edit)</small>
+            </div>
+          </div>
+
+          <div v-else class="text-muted">
+            No past courses.
+          </div>
+
+
       </div>
     </div>
 
@@ -208,6 +238,7 @@ export default {
       futureSlots: [],
       currentCourses: [],
       futureCourses: [],
+      pastCourses: [],
 
       // For edit modal
       showEditModal: false,
@@ -337,6 +368,12 @@ export default {
         const dates = course.sessions.map(s => s.startDateTime.slice(0, 10))
         const first = dates.reduce((a, b) => (a < b ? a : b))
         return first > today
+      })
+
+      this.pastCourses = allCourses.filter(course => {
+        const dates = course.sessions.map(s => s.startDateTime.slice(0, 10))
+        const last = dates.reduce((a, b) => (a > b ? a : b))
+        return last < today
       })
     },
 
